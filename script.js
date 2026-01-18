@@ -1,24 +1,23 @@
-// Importando funções do Firebase via CDN (não precisa de npm install)
+// --- IMPORTAÇÕES (Versão Web/CDN) ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// --- CONFIGURAÇÃO DO FIREBASE ---
-// 1. Vá no Console do Firebase > Configurações do Projeto > Geral
-// 2. Role até "Seus aplicativos" e copie o objeto "firebaseConfig"
-// 3. Cole ABAIXO (substitua o exemplo):
-
+// --- SUA CONFIGURAÇÃO (Já inserida) ---
 const firebaseConfig = {
-    apiKey: "SUA_API_KEY_AQUI",
-    authDomain: "SEU_PROJETO.firebaseapp.com",
-    projectId: "SEU_PROJETO_ID",
-    storageBucket: "SEU_PROJETO.appspot.com",
-    messagingSenderId: "NUMEROS...",
-    appId: "1:NUMEROS:web:CODIGOS..."
+  apiKey: "AIzaSyDAjX4LQ8FER3k6lkFFzSVJdgnlx-WqdC0",
+  authDomain: "projeto-alene.firebaseapp.com",
+  projectId: "projeto-alene",
+  storageBucket: "projeto-alene.firebasestorage.app",
+  messagingSenderId: "159211713850",
+  appId: "1:159211713850:web:20c721981195a2c7690c03",
+  measurementId: "G-P61PNL7H7Z"
 };
 
 // Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const analytics = getAnalytics(app); // Opcional, mas já deixei configurado
+const db = getFirestore(app);        // Banco de dados
 
 // --- LÓGICA DO SITE ---
 
@@ -43,21 +42,21 @@ questionInput.addEventListener('input', function() {
     }
 });
 
-// FUNÇÃO 1: Enviar Pergunta para o Firebase
+// FUNÇÃO 1: Enviar Pergunta para o Firestore
 sendBtn.addEventListener('click', async () => {
     const text = questionInput.value.trim();
 
     if (text === "" || text.length > 300) return;
 
-    // Desabilitar botão para evitar flood
+    // Feedback visual
     sendBtn.disabled = true;
     sendBtn.textContent = "Enviando...";
 
     try {
-        // Salva na coleção 'questions'
+        // Salva na coleção 'questions' do seu projeto-alene
         await addDoc(collection(db, "questions"), {
             text: text,
-            timestamp: serverTimestamp() // Pega a hora do servidor
+            timestamp: serverTimestamp()
         });
 
         // Limpa o input
@@ -65,7 +64,7 @@ sendBtn.addEventListener('click', async () => {
         charCount.textContent = '0/300';
     } catch (e) {
         console.error("Erro ao enviar: ", e);
-        alert("Erro ao enviar pergunta.");
+        alert("Erro ao enviar pergunta. Verifique se configurou as Regras do Firestore.");
     } finally {
         sendBtn.disabled = false;
         sendBtn.textContent = "Enviar Pergunta";
@@ -73,11 +72,10 @@ sendBtn.addEventListener('click', async () => {
 });
 
 // FUNÇÃO 2: Escutar novas perguntas em Tempo Real
-// Isso roda automaticamente sempre que alguém posta uma pergunta nova
 const q = query(collection(db, "questions"), orderBy("timestamp", "desc"));
 
 onSnapshot(q, (snapshot) => {
-    feed.innerHTML = ''; // Limpa feed para recriar (pode ser otimizado, mas funciona bem)
+    feed.innerHTML = ''; 
     
     if (snapshot.empty) {
         feed.innerHTML = '<p style="text-align:center; color:#666;">Seja o primeiro a perguntar.</p>';
@@ -86,7 +84,9 @@ onSnapshot(q, (snapshot) => {
 
     snapshot.forEach((doc) => {
         const data = doc.data();
-        const card = createQuestionCard(data.text, data.timestamp);
+        // Proteção contra erro caso o timestamp ainda não tenha sido gerado pelo servidor
+        const ts = data.timestamp;
+        const card = createQuestionCard(data.text, ts);
         feed.appendChild(card);
     });
 });
@@ -96,8 +96,7 @@ function createQuestionCard(text, firestoreTimestamp) {
     const card = document.createElement('div');
     card.className = 'question-card';
 
-    // Converter Timestamp do Firebase para horário legível
-    let timeString = "...";
+    let timeString = "Agora";
     if (firestoreTimestamp) {
         const date = firestoreTimestamp.toDate();
         timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -114,6 +113,7 @@ function createQuestionCard(text, firestoreTimestamp) {
 }
 
 function escapeHtml(text) {
+    if (!text) return "";
     return text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")

@@ -198,3 +198,65 @@ button:active {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* --- RESPONSIVIDADE (Mobile) --- */
+
+/* Ajustes para Tablets e Celulares (telas menores que 768px) */
+@media (max-width: 768px) {
+    
+    /* Ajusta o título para não quebrar em telas pequenas */
+    header h1 {
+        font-size: 2rem; 
+        padding: 0 10px;
+    }
+
+    header p {
+        font-size: 1rem;
+        padding: 0 20px;
+    }
+
+    /* Reduz o padding lateral do container principal */
+    .container {
+        padding: 0 16px;
+    }
+
+    /* Diminui o padding interno do cartão de pergunta para ganhar espaço */
+    .input-card {
+        padding: 20px;
+    }
+
+    /* Reduz o tamanho das luzes de fundo para não distrair no mobile */
+    .glow-1, .glow-2 {
+        width: 300px;
+        height: 300px;
+        opacity: 0.3;
+    }
+}
+
+/* Ajustes para Celulares Pequenos (telas menores que 480px) */
+@media (max-width: 480px) {
+    
+    /* Muda a disposição do rodapé do input (contador e botão) */
+    .actions {
+        flex-direction: column-reverse; /* Botão em cima, contador embaixo ou vice-versa */
+        gap: 12px;
+        align-items: stretch; /* Estica o botão para largura total */
+    }
+
+    /* Botão maior para facilitar o toque */
+    button {
+        width: 100%;
+        padding: 14px;
+        font-size: 1rem;
+    }
+
+    .char-count {
+        text-align: right;
+        font-size: 0.8rem;
+    }
+
+    /* Ajusta altura da caixa de texto */
+    textarea {
+        height: 100px; /* Um pouco maior no mobile para digitar melhor */
+        font-size: 1rem; /* Evita zoom automático no iPhone */
+    }
+}
