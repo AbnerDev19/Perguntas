@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnonAsk - Perguntas Anônimas</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background-glow glow-1"></div>
+    <div class="background-glow glow-2"></div>
+
+    <main class="container">
+        <header>
+            <h1>Pergunte qualquer coisa</h1>
+            <p>Envie sua pergunta de forma totalmente anônima.</p>
+        </header>
+
+        <section class="input-card">
+            <textarea id="questionInput" placeholder="O que você quer saber?"></textarea>
+            <div class="actions">
+                <span class="char-count">0/300</span>
+                <button id="sendBtn">Enviar Pergunta</button>
+            </div>
+        </section>
+
+        <section id="feed" class="feed">
+            <p class="loading-text">Carregando perguntas...</p>
+        </section>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
