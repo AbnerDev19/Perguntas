@@ -1,9 +1,9 @@
-// --- IMPORTAÇÕES (Versão Web/CDN) ---
+// --- IMPORTAÇÕES ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// --- SUA CONFIGURAÇÃO (Já inserida) ---
+// --- SUA CONFIGURAÇÃO ---
 const firebaseConfig = {
   apiKey: "AIzaSyDAjX4LQ8FER3k6lkFFzSVJdgnlx-WqdC0",
   authDomain: "projeto-alene.firebaseapp.com",
@@ -16,15 +16,14 @@ const firebaseConfig = {
 
 // Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app); // Opcional, mas já deixei configurado
-const db = getFirestore(app);        // Banco de dados
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
 
 // --- LÓGICA DO SITE ---
-
 const sendBtn = document.getElementById('sendBtn');
 const questionInput = document.getElementById('questionInput');
-const feed = document.getElementById('feed');
 const charCount = document.querySelector('.char-count');
+const statusMessage = document.getElementById('statusMessage');
 
 // Contador de Caracteres
 questionInput.addEventListener('input', function() {
@@ -42,18 +41,16 @@ questionInput.addEventListener('input', function() {
     }
 });
 
-// FUNÇÃO 1: Enviar Pergunta para o Firestore
+// Enviar Mensagem
 sendBtn.addEventListener('click', async () => {
     const text = questionInput.value.trim();
 
     if (text === "" || text.length > 300) return;
 
-    // Feedback visual
     sendBtn.disabled = true;
     sendBtn.textContent = "Enviando...";
 
     try {
-        // Salva na coleção 'questions' do seu projeto-alene
         await addDoc(collection(db, "questions"), {
             text: text,
             timestamp: serverTimestamp()
@@ -62,62 +59,18 @@ sendBtn.addEventListener('click', async () => {
         // Limpa o input
         questionInput.value = '';
         charCount.textContent = '0/300';
+        
+        // Feedback visual de sucesso
+        statusMessage.style.opacity = '1';
+        setTimeout(() => {
+            statusMessage.style.opacity = '0';
+        }, 3000);
+
     } catch (e) {
-        console.error("Erro ao enviar: ", e);
-        alert("Erro ao enviar pergunta. Verifique se configurou as Regras do Firestore.");
+        console.error("Erro: ", e);
+        alert("Erro ao enviar. Tente novamente.");
     } finally {
         sendBtn.disabled = false;
-        sendBtn.textContent = "Enviar Pergunta";
+        sendBtn.textContent = "Enviar Mensagem";
     }
 });
-
-// FUNÇÃO 2: Escutar novas perguntas em Tempo Real
-const q = query(collection(db, "questions"), orderBy("timestamp", "desc"));
-
-onSnapshot(q, (snapshot) => {
-    feed.innerHTML = ''; 
-    
-    if (snapshot.empty) {
-        feed.innerHTML = '<p style="text-align:center; color:#666;">Seja o primeiro a perguntar.</p>';
-        return;
-    }
-
-    snapshot.forEach((doc) => {
-        const data = doc.data();
-        // Proteção contra erro caso o timestamp ainda não tenha sido gerado pelo servidor
-        const ts = data.timestamp;
-        const card = createQuestionCard(data.text, ts);
-        feed.appendChild(card);
-    });
-});
-
-// Função Auxiliar de HTML
-function createQuestionCard(text, firestoreTimestamp) {
-    const card = document.createElement('div');
-    card.className = 'question-card';
-
-    let timeString = "Agora";
-    if (firestoreTimestamp) {
-        const date = firestoreTimestamp.toDate();
-        timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    card.innerHTML = `
-        <p>${escapeHtml(text)}</p>
-        <div class="question-meta">
-            <span class="dot"></span>
-            <span>Anônimo • ${timeString}</span>
-        </div>
-    `;
-    return card;
-}
-
-function escapeHtml(text) {
-    if (!text) return "";
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}

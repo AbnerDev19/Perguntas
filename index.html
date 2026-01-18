@@ -16,21 +16,21 @@
 
     <main class="container">
         <header>
-            <h1>Pergunte qualquer coisa</h1>
-            <p>Envie sua pergunta de forma totalmente anônima.</p>
+            <h1>Fale Comigo</h1>
+            <p>Envie sua mensagem anônima. Ela será lida apenas por mim.</p>
         </header>
 
         <section class="input-card">
-            <textarea id="questionInput" placeholder="O que você quer saber?"></textarea>
+            <textarea id="questionInput" placeholder="Escreva sua mensagem aqui..."></textarea>
             <div class="actions">
                 <span class="char-count">0/300</span>
-                <button id="sendBtn">Enviar Pergunta</button>
+                <button id="sendBtn">Enviar Mensagem</button>
             </div>
         </section>
-
-        <section id="feed" class="feed">
-            <p class="loading-text">Carregando perguntas...</p>
-        </section>
+        
+        <p id="statusMessage" style="text-align: center; margin-top: 20px; color: #4cd964; opacity: 0; transition: opacity 0.5s;">
+            Mensagem enviada com sucesso!
+        </p>
     </main>
 
     <script type="module" src="script.js"></script>
